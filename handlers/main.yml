@@ -1,0 +1,7 @@
+---
+# handlers file for xymonclient
+
+- name: reload_xymonclient
+  service:
+    name: xymon-client
+    state: restarted

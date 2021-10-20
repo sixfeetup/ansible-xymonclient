@@ -1,0 +1,26 @@
+---
+
+- name: configure xymsrv
+  lineinfile:
+    path: "{{ xc_vars.conf_dir }}/xymonclient.cfg"
+    regexp: '^XYMSRV=.*'
+    line: "XYMSRV=\"{{ xymonserver }}\""
+  notify: reload_xymonclient
+
+- name: configure clientname
+  lineinfile:
+    path: "{{ xc_vars.conf_dir }}/xymonclient.cfg"
+    regexp: "^{{ item.key }}=.*"
+    line: "{{ item.key }}=\"{{ item.value }}\""
+  loop:
+    - {key: "MACHINEDOTS", value: "{{ inventory_hostname }}"}
+    - {key: "MACHINE", value: "{{ inventory_hostname |replace('.', ',') }}"}
+    - {key: "HOST", value: "{{ inventory_hostname }}"}
+    - {key: "HOSTNAME", value: "{{ inventory_hostname }}"}
+  notify: reload_xymonclient
+
+- name: xymon-client service
+  service:
+    name: xymon-client
+    enabled: true
+    state: started

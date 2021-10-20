@@ -1,0 +1,28 @@
+---
+# defaults file for xymonclient
+
+root_group: "{{ (ansible_distribution == 'FreeBSD') | ternary('wheel','root') }}"
+config_prefix: "{{ (ansible_distribution == 'FreeBSD') | ternary('/usr/local/etc','/etc') }}"
+
+xymonclient:
+  RedHat:
+    install_type: install_source
+    version: 4.3.30
+    conf_dir: /usr/lib/xymon/client/etc
+    source_hash: 8ed51771c8e1e15df96725072c61a21286ab0e6105a0e1edac956225201bf5f5
+  Ubuntu:
+    install_type: install_package
+    pkg: xymon-client
+    conf_dir: /etc/xymon
+  Debian:
+    install_type: install_package
+    pkg: xymon-client
+    conf_dir: /etc/xymon
+  FreeBSD:
+    install_type: install_package
+    pkg: xymon-client
+    conf_dir: /usr/local/www/xymon/client/etc
+
+xymonserver: 34.229.29.193
+
+xc_vars: "{{ xymonclient[ansible_distribution] }}"

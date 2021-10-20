@@ -1,0 +1,28 @@
+---
+galaxy_info:
+  role_name: xymonclient
+  namespace: sixfeetup
+  author: Six Feet Up
+  description: Installs and configures xymonclient
+  license: MIT
+  min_ansible_version: 2.8
+  github_branch: master
+  platforms:
+    - name: Debian
+      versions:
+        - buster
+        - stretch
+    - name: Ubuntu
+      versions:
+        - xenial
+        - bionic
+        - focal
+    - name: FreeBSD
+      versions:
+        - "12.2"
+    - name: RedHat (partially)
+      versions:
+        - "12.2"
+  galaxy_tags:
+    - xymon
+dependencies: []

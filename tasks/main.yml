@@ -1,0 +1,16 @@
+---
+# tasks file for xymonclient
+
+- name: install from package
+  import_tasks: install_package.yml
+  when: xc_vars.install_type == "install_package"
+  tags: xymonclient
+
+- name: install from source
+  import_tasks: install_source.yml
+  when: xc_vars.install_type == "install_source"
+  tags: xymonclient
+
+- name: configure xymonclient
+  import_tasks: configure.yml
+  tags: xymonclient

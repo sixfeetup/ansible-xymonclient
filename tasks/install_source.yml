@@ -1,0 +1,112 @@
+---
+
+- name: create xymon group
+  group:
+    name: xymon
+    state: present
+
+- name: create xymon user
+  user:
+    name: xymon
+    group: xymon
+    home: /usr/lib/xymon/client
+    shell: /sbin/nologin
+    state: present
+
+- name: install xymon dependencies
+  package:
+    name:
+      - gcc
+      - make
+      - fping
+      - pcre-devel
+      - openssl-devel
+      - openldap-devel
+      - rrdtool-devel
+      - libtirpc-devel
+    state: present
+
+- name: xymon_source
+  unarchive:
+    src: "https://iweb.dl.sourceforge.net/project/xymon/Xymon/{{ xc_vars.version }}/xymon-{{ xc_vars.version }}.tar.gz"
+    remote_src: true
+    dest: /usr/src
+    owner: nobody
+    group: nobody
+
+- name: make configure
+  command: "./configure --client"
+  environment:
+    CONFTYPE: client
+    XYMONUSER: xymon
+    XYMONTOPDIR: /usr/lib/xymon/client
+    XYMONHOSTIP: "{{ xymon.xymsrv }}"
+  args:
+    chdir: "/usr/src/xymon-{{ xymon.version }}"
+    creates: "/usr/src/xymon-{{ xymon.version }}/Makefile"
+
+- name: make
+  command: make
+  args:
+    chdir: "/usr/src/xymon-{{ xymon.version }}"
+    creates: "/usr/src/xymon-{{ xymon.version }}/client/xymond_client"
+
+- name: make install
+  command: make install
+  args:
+    chdir: "/usr/src/xymon-{{ xymon.version }}"
+    creates: /usr/lib/xymon/client/bin/xymond_client
+
+- name: xymon init file
+  copy:
+    src: "/usr/src/xymon-{{ xymon.version }}/rpm/xymon-client.init"
+    dest: /etc/init.d/xymon-client
+    owner: root
+    group: "{{ root_group }}"
+    mode: 0775
+
+- name: xymon service defaults
+  copy:
+    src: "/usr/src/xymon-{{ xymon.version }}/rpm/xymon-client.default"
+    dest: /etc/default/xymon-client
+    owner: root
+    group: "{{ root_group }}"
+    mode: 0664
+
+
+- name: xymon default server
+  lineinfile:
+    path: /etc/default/xymon-client
+    regexp: '^XYMONSERVERS=.*'
+    line: "XYMONSERVERS=\"127.0.0.1\""
+
+# groupadd xymon
+# useradd -g xymon -m xymon
+
+# yum install gcc make fping pcre-devel openssl-devel openldap-devel rrdtool-devel libtirpc-devel
+
+# cd /usr/src
+# wget https://iweb.dl.sourceforge.net/project/xymon/Xymon/4.3.30/xymon-4.3.30.tar.gz
+# tar -zxf xymon-4.3.30.tar.gz
+# cd xymon-4.3.30
+
+# CONFTYPE=client
+# $XYMONUSER=xymon
+# $XYMONTOPDIR=/usr/lib/xymon/client
+# $XYMONHOSTIP {{ xymon.xymsrv }}
+
+# export CONFTYPE=client
+# export XYMONUSER=xymon
+# export XYMONTOPDIR=/usr/lib/xymon/client
+# export XYMONHOSTIP=100.26.248.157
+
+# ./configure --client
+# # Choose /usr/lib/xymon/client as the directory to install
+# chown -R nobody .
+# sudo -u nobody make
+# make install
+# cp rpm/xymon-client.init /etc/init.d/xymon-client
+# cp rpm/xymon-client.default /etc/default/xymon-client
+# chmod +x /etc/init.d/xymon-client
+# /etc/default/xymon-client XYMONSERVERS="127.0.0.1"
+# }

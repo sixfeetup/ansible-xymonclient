@@ -1,0 +1,6 @@
+---
+
+- name: install xymon
+  package:
+    name: "{{ xc_vars.pkg }}"
+    state: present
